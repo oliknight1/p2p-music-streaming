@@ -1,4 +1,4 @@
-package internal
+package tracker
 
 import (
 	"bufio"
@@ -19,6 +19,7 @@ func (t *Tracker) Register(peerAddress string, songs map[string]string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	t.Peers[peerAddress] = songs
+	fmt.Println("Received REGISTER request")
 }
 
 // Return a list of peer addresses that have the requested song
@@ -42,6 +43,7 @@ func (t *Tracker) StartServer() {
 	if err != nil {
 		log.Fatalf("Error starting tracker server: %v \n", err)
 	}
+	fmt.Println("Tracker server running")
 	defer listener.Close()
 
 	for {
@@ -58,11 +60,13 @@ func (t *Tracker) StartServer() {
 
 func (t *Tracker) handleConnection(conn net.Conn) {
 	defer conn.Close()
+
 	reader := bufio.NewReader(conn)
 	msg, err := reader.ReadString('\n')
+	fmt.Println(msg)
 
 	if err != nil {
-		fmt.Fprintf(conn, "Error reading tracker request: %v ", err)
+		fmt.Fprintf(conn, "Error reading tracker request: %v", err)
 	}
 
 	msg = strings.TrimSpace(msg)
@@ -78,6 +82,8 @@ func (t *Tracker) handleConnection(conn net.Conn) {
 		songs := make(map[string]string)
 		for {
 			line, err := reader.ReadString('\n')
+			fmt.Println(len(parts))
+			fmt.Println(parts)
 
 			if len(parts) < 2 {
 				conn.Write([]byte("ERROR Invalid REGISTER request\n"))
@@ -87,6 +93,7 @@ func (t *Tracker) handleConnection(conn net.Conn) {
 				return
 			}
 			line = strings.TrimSpace(line)
+			fmt.Println(line)
 			if line == "" {
 				break
 			}
