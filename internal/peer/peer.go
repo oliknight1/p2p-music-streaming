@@ -113,7 +113,7 @@ func (p *Peer) handleConnection(conn net.Conn) {
 		segment := parts[1]
 		path, err := getSegment(segment)
 		if err != nil {
-			//TODO: improfve this error handling
+			//TODO: improve this error handling
 			log.Fatal("Error finding file")
 		}
 		_, err = fmt.Fprintf(conn, "SEGMENT %s\n", segment)
